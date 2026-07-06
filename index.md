@@ -47,7 +47,7 @@ I set up the Raspberry Pi with motor drivers using gpiozero and tested basic mov
 The main challenge was getting smooth and reliable motor response with the Pi, which I solved by switching to the pigpio factory for better PWM control. This setup provided the mobility needed for the full ball-tracking behavior in later milestones.
 
 # Schematics 
-<img src="Ball_Tracker_bb.svg"></img>
+<img src="Ball_Tracker_bb.svg">
 
 # Code
 ```python
