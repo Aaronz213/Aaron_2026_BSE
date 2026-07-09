@@ -435,7 +435,10 @@ GPIO.setwarnings(False)
 
 try:
     factory = PiGPIOFactory()
-    ...
+    print("Connected to pigpio")
+except Exception as e:
+    print("Failed to connect to pigpio:", e)
+    exit()
 left = Motor(forward=23, backward=24, pin_factory=factory)
 right = Motor(forward=27, backward=17, pin_factory=factory)
 ```
@@ -444,9 +447,9 @@ right = Motor(forward=27, backward=17, pin_factory=factory)
 
 #### Sensors
 ```
-lsense = DistanceSensor(echo=15, trigger=14, ...)
-centsense = DistanceSensor(...)   # Front sensor
-rsense = DistanceSensor(...)
+lsense = DistanceSensor(echo=15, trigger=14, pin_factory=factory)
+centsense = DistanceSensor(echo=13, trigger=6, pin_factory=factory)
+rsense = DistanceSensor(echo=9, trigger=10, pin_factory=factory)
 ```
 * Three ultrasonic sensors for left, center, and right obstacle detection
 
