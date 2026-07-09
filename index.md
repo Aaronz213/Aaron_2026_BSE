@@ -42,9 +42,113 @@ The main challenge was making the robot actually approach the ball instead of ju
 
 I focused on building the foundation of the robot, assembling the drivetrain using two DC motors in a differential drive configuration and installing three HC-SR04 ultrasonic sensors (left, center, and right) for obstacle detection.  
 
-I set up the Raspberry Pi with motor drivers using gpiozero and tested basic movement commands (forward, backward, and turning). This milestone established the mechanical base and low-level motor + sensor control that the computer vision system would later build upon.  
+I set up the Raspberry Pi with motor drivers using gpiozero and tested basic movement commands (forward, backward, and turning). This milestone established the mechanical base and low-level motor + sensor control that the computer vision system would later build upon. 
 
 The main challenge was getting smooth and reliable motor response with the Pi, which I solved by switching to the pigpio factory for better PWM control. This setup provided the mobility needed for the full ball-tracking behavior in later milestones.
+
+I wrote a simple program named ```Robot_Test``` to test the operational status of the motors, Raspberry Pi, and Sensors working together. ```Robot_Test`` works by having the robot drive in a straight line until an ultrasonic sensor detects something and immediately stops.
+
+### ```Robot_Test```:
+``` python
+import RPi.GPIO as GPIO
+import time
+from gpiozero import Motor, DistanceSensor
+from gpiozero.pins.pigpio import PiGPIOFactory
+
+# ====================== SETUP ======================
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+
+# Setup pigpio factory (best for DistanceSensor)
+try: 
+    factory = PiGPIOFactory()
+    print("Connected to pigpio")
+except Exception as e:
+    print("Failed to connect to pigpio:",e)
+    print("Make sure 'sudo pigpiod' is running")
+    exit()
+
+# Motors
+GPIO.setup([17, 27, 23, 24], GPIO.OUT)
+left = Motor(forward=23, backward=24, pin_factory=factory)
+right = Motor(forward=27, backward=17, pin_factory=factory)
+
+# Distance Sensors
+lsense = DistanceSensor(echo=15, trigger=14, pin_factory=factory)
+centsense = DistanceSensor(echo=13, trigger=6, pin_factory=factory)
+rsense = DistanceSensor(echo=9, trigger=10, pin_factory=factory)
+
+motorspd = 0.5
+
+# ====================== FUNCTIONS ======================
+def startup():
+    left.forward(speed=motorspd)
+    right.forward(speed=motorspd)
+    time.sleep(0.5)
+    right.backward(speed=motorspd)
+    left.backward(speed=motorspd)
+    time.sleep(0.5)
+    left.stop()
+    right.stop()
+
+def testforward(timeamt):
+    left.forward(speed=motorspd)
+    right.forward(speed=motorspd)
+    time.sleep(timeamt)
+    left.stop()
+    right.stop()
+
+def testbackward(timeamt):
+    left.backward(speed=motorspd)
+    right.backward(speed=motorspd)
+    time.sleep(timeamt)
+    left.stop()
+    right.stop()
+
+def driveforward():
+    left.forward(speed=motorspd)
+    right.forward(speed=motorspd)
+
+def drivebackward():
+    left.backward(speed=motorspd)
+    right.backward(speed=motorspd)
+
+def stop():
+    left.stop()
+    right.stop()
+
+def driveTillDetect():
+    try:
+        while True:
+            ldist = lsense.distance * 100
+            centdist = centsense.distance * 100
+            rdist = rsense.distance * 100
+            
+            print(f"L: {ldist:.1f}cm | C: {centdist:.1f}cm | R: {rdist:.1f}cm")
+            
+            if ldist > 15 and centdist > 15 and rdist > 15:
+                driveforward()
+            else:
+                stop()
+                print("Obstacle detected! Stopping.")
+                break
+                
+            time.sleep(0.1)
+    except Exception as e:
+        print("Error in driveTillDetect:", e)
+        stop()
+
+# ====================== MAIN ======================
+startup()
+
+cont = input("Continue with program? ")
+if cont.lower() == "yes" or cont.lower()=="y":
+    time.sleep(2)
+    driveTillDetect()
+
+GPIO.cleanup()
+```
+
 
 # Schematics 
 <img src="Ball_Tracker_bb.svg">
