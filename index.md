@@ -338,20 +338,24 @@ lost_threshold = 8.0       # Seconds before aggressive search if ball lost for e
 Prevents the console from being flooded with repeated messages. Only prints when the action changes.
 
 ### Motor Control Functions
-* stop(): Stops both motors
-* driveforward() / drivebackward(): Move with dynamic speed (respects min_speed)
-* leftturn() / rightturn(): Gentle turns while tracking the ball
-* sharp_left() / sharp_right(): Used when searching for the ball
-* back_left() / back_right(): Used for obstacle rerouting
+* ```stop()```: Stops both motors
+* ```driveforward()``` / ```drivebackward()```: Move with dynamic speed (respects min_speed)
+* ```leftturn()``` / ```rightturn()```: Gentle turns while tracking the ball
+* ```sharp_left()``` / ```sharp_right()```: Used when searching for the ball
+* ```back_left()``` / ```back_right()```: Used for obstacle rerouting
 
 ### Ball Detection Functions
-```segment_colour()```
+```
+segment_color()
+```
 * Converts image to HSV color space
 * Creates a mask keeping only red colors (HSV range: 150–190 hue)
 * Uses erosion and dilation to reduce noise
 * Shows the mask window for debugging
 
-```find_blob()```
+```
+find_blob()
+```
 * Finds all red contours in the mask
 * Selects the largest one (assumed to be the ball)
 * Returns its bounding box (x, y, w, h) and pixel area
