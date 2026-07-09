@@ -36,6 +36,45 @@ I also refined the motor control (differential drive) and integrated ultrasonic 
 
 The main challenge was making the robot actually approach the ball instead of just spotting it and spinning. This was solved through extensive tuning of area thresholds, turning deadzones, and speed curves.
 
+To test the integration of the Pi Camera and OpenCV, I created a program called ```OpenCV_Test```, which shows the live camera feed in a pop-up window.
+
+```python
+from picamera2 import Picamera2
+import cv2
+import time
+
+picam2 = Picamera2()
+config = picam2.create_preview_configuration(main={"size": (640, 480)})
+picam2.configure(config)
+picam2.start()
+
+print("Camera started with picamera2 + OpenCV")
+
+try:
+    while True:
+        # Capture frame using picamera2
+        frame = picam2.capture_array()
+        
+        # Convert from RGB to BGR (what OpenCV expects)
+        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        
+        # Show the frame
+        cv2.imshow("Camera Test", frame_bgr)
+        
+        # Press 'q' to quit
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+            
+        time.sleep(0.03)
+        
+except KeyboardInterrupt:
+    print("\nStopped by user")
+finally:
+    picam2.stop()
+    cv2.destroyAllWindows()
+    print("Camera released")
+```
+
 # First Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/df3oGgHPZj8?si=Cq0kGAjQgxcFnNKI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
