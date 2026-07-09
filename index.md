@@ -93,7 +93,7 @@ print("Camera started - Smart Ball Tracker Running")
 last_action = ""
 flag = 0
 ball_lost_time = time.time()
-lost_threshold = 80.0
+lost_threshold = 8.0
 
 def print_once(action):
     global last_action
@@ -266,6 +266,149 @@ finally:
     GPIO.cleanup()
     print("Robot stopped and cleaned up.")
 ```
+### Imports
+```
+python
+import RPi.GPIO as GPIO
+import time
+import cv2
+import numpy as np
+from picamera2 import Picamera2
+from gpiozero import Motor, DistanceSensor
+from gpiozero.pins.pigpio import PiGPIOFactory
+```
+* ```GPIO```: Low-level control of Raspberry Pi pins (used as fallback)
+* ```time```: For delays and timing (lost ball timer)
+* ```cv2``` (OpenCV): Image processing and ball detection
+* ```numpy```: Used for array operations in color detection
+* ```picamera2```: Modern library to capture video from the Raspberry Pi Camera
+* ```gpiozero```: High-level library for motors and ultrasonic sensors (easier to use)
+
+### Hardware Setup
+```
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+
+try:
+    factory = PiGPIOFactory()
+    ...
+left = Motor(forward=23, backward=24, pin_factory=factory)
+right = Motor(forward=27, backward=17, pin_factory=factory)
+```
+* Sets up motor control using specific GPIO pins
+* Uses ```PiGPIOFactory``` for smoother PWM control of motors
+
+#### Sensors
+```
+lsense = DistanceSensor(echo=15, trigger=14, ...)
+centsense = DistanceSensor(...)   # Front sensor
+rsense = DistanceSensor(...)
+```
+* Three ultrasonic sensors for left, center, and right obstacle detection
+
+#### Constants
+```
+motorspd = 0.85
+min_speed = motorspd * 0.7
+sensor_proximity = 10.0
+rerouting_proximity = 17.5
+```
+* motorspd: Maximum speed
+* min_speed: Minimum allowed speed (to prevent stalling on heavy robot)
+* sensor_proximity: Distance (cm) at which we consider something an obstacle
+
+### Camera Setup
+```
+picam2 = Picamera2()
+config = picam2.create_preview_configuration(main={"size": (640, 480)})
+picam2.configure(config)
+picam2.start()
+```
+* Initializes the camera at 640×480 resolution (good balance between speed and quality)
+
+### Global Variables
+```
+last_action = ""           # Used to prevent spam printing
+flag = 0                   # Remembers if ball was last on left (0) or right (1)
+ball_lost_time = time.time()
+lost_threshold = 8.0       # Seconds before aggressive search if ball lost for extended time
+```
+
+### Helper Function: ```print_once()```
+Prevents the console from being flooded with repeated messages. Only prints when the action changes.
+
+### Motor Control Functions
+* stop(): Stops both motors
+* driveforward() / drivebackward(): Move with dynamic speed (respects min_speed)
+* leftturn() / rightturn(): Gentle turns while tracking the ball
+* sharp_left() / sharp_right(): Used when searching for the ball
+* back_left() / back_right(): Used for obstacle rerouting
+
+### Ball Detection Functions
+```segment_colour()```
+* Converts image to HSV color space
+* Creates a mask keeping only red colors (HSV range: 150–190 hue)
+* Uses erosion and dilation to reduce noise
+* Shows the mask window for debugging
+
+```find_blob()```
+* Finds all red contours in the mask
+* Selects the largest one (assumed to be the ball)
+* Returns its bounding box (x, y, w, h) and pixel area
+
+### Main Loop Logic
+#### Frame Processing
+```
+frame = picam2.capture_array()
+frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert for OpenCV
+height, width = frame_bgr.shape[:2]
+        
+ldist = lsense.distance * 100
+cdist = centsense.distance * 100                    # Read all three sensors
+rdist = rsense.distance * 100
+        
+mask_red = segment_colour(frame_bgr)
+loct, area = find_blob(mask_red)                    # Get ball info
+x, y, w, h = loct
+        
+found = (w * h) > 350                               # Minimum size filter
+```
+#### Decision Logic
+1. If Ball is Found:
+   ball_is_very_close: Checks if area is very large or any sensor sees something very close
+   If very close → Stop
+   If path is clear → Turn or drive forward with speed adjusted by ball size
+   If obstacle detected → Reverse and reroute
+
+2. If Ball is NOT Found:
+   Search by turning left or right based on flag (last known position)
+   If obstacle while searching → Reverse
+
+Obstacle Safety Check (outside main if):
+Extra safety layer that forces reverse if anything is too close
+
+### Display
+```
+cv2.imshow("Ball Tracker", frame_bgr)
+if cv2.waitKey(1) & 0xFF == ord('q'):
+  print("\nQuitting...")
+  break
+```
+* Shows live camera feed with green bounding box and center dot
+* Press q to quit easily
+
+### Exit
+```
+except Exception as e:
+    print("Error:", e)
+finally:
+    stop()
+    picam2.stop()
+    cv2.destroyAllWindows()
+    GPIO.cleanup()
+    print("Robot stopped and cleaned up.")
+```
+* Cleanup: Stop motors, release camera, reset GPIO
 
 # Bill of Materials
 
@@ -288,4 +431,4 @@ finally:
 | Mouse and Keyboard | A separate Mouse and Keyboard is needed to operate the Raspberry Pi. | $25.99 | <a href="https://www.amazon.com/Wireless-Keyboard-Trueque-Cordless-Computer/dp/B09J4RQFK7/ref=sr_1_1_sspa?crid=2R048HRMFBA7Z&keywords=mouse+and+keyboard+wireless&qid=1689871090&sprefix=mouse+and+keyboard+wireless+%2Caps%2C131&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1"> <ins>Link</ins> </a> |
 |:--:|:--:|:--:|:--:|
 | Basic connections components kit | This includes necessary components for connections such as: breadboard, jumper wires (male-to-male and male-to-female), resistors, and LEDs.  | $11.47 | <a href="https://www.amazon.com/Smraza-Breadboard-Resistors-Mega2560-Raspberry/dp/B01HRR7EBG/ref=sr_1_16?crid=27G99F3EADUCG&keywords=breadboard+1+pc&qid=1689894556&sprefix=breadboard+1+p%2Caps%2C185&sr=8-16"> <ins>Link</ins> </a> |
-|:--:|:--:|:--:|:--:|
+
