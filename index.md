@@ -370,7 +370,7 @@ finally:
     GPIO.cleanup()
     print("Robot stopped and cleaned up.")
 ```
-### Imports
+### 1. Imports
 ```
 python
 import RPi.GPIO as GPIO
@@ -388,7 +388,7 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 * ```picamera2```: Modern library to capture video from the Raspberry Pi Camera
 * ```gpiozero```: High-level library for motors and ultrasonic sensors (easier to use)
 
-### Hardware Setup
+### 2. Hardware Setup
 ```
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -421,7 +421,7 @@ rerouting_proximity = 17.5
 * min_speed: Minimum allowed speed (to prevent stalling on heavy robot)
 * sensor_proximity: Distance (cm) at which we consider something an obstacle
 
-### Camera Setup
+### 3. Camera Setup
 ```
 picam2 = Picamera2()
 config = picam2.create_preview_configuration(main={"size": (640, 480)})
@@ -430,7 +430,7 @@ picam2.start()
 ```
 * Initializes the camera at 640×480 resolution (good balance between speed and quality)
 
-### Global Variables
+### 4. Global Variables
 ```
 last_action = ""           # Used to prevent spam printing
 flag = 0                   # Remembers if ball was last on left (0) or right (1)
@@ -438,17 +438,17 @@ ball_lost_time = time.time()
 lost_threshold = 8.0       # Seconds before aggressive search if ball lost for extended time
 ```
 
-### Helper Function: ```print_once()```
+### 5. Helper Function: ```print_once()```
 Prevents the console from being flooded with repeated messages. Only prints when the action changes.
 
-### Motor Control Functions
+### 6. Motor Control Functions
 * ```stop()```: Stops both motors
 * ```driveforward()``` / ```drivebackward()```: Move with dynamic speed (respects min_speed)
 * ```leftturn()``` / ```rightturn()```: Gentle turns while tracking the ball
 * ```sharp_left()``` / ```sharp_right()```: Used when searching for the ball
 * ```back_left()``` / ```back_right()```: Used for obstacle rerouting
 
-### Ball Detection Functions
+### 7. Ball Detection Functions
 ```
 segment_color()
 ```
@@ -464,7 +464,7 @@ find_blob()
 * Selects the largest one (assumed to be the ball)
 * Returns its bounding box (x, y, w, h) and pixel area
 
-### Main Loop Logic
+### 8. Main Loop Logic
 #### Frame Processing
 ```
 frame = picam2.capture_array()
@@ -495,7 +495,7 @@ found = (w * h) > 350                               # Minimum size filter
 Obstacle Safety Check (outside main if):
 Extra safety layer that forces reverse if anything is too close
 
-### Display
+### 9. Display
 ```
 cv2.imshow("Ball Tracker", frame_bgr)
 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -505,7 +505,7 @@ if cv2.waitKey(1) & 0xFF == ord('q'):
 * Shows live camera feed with green bounding box and center dot
 * Press q to quit easily
 
-### Exit
+### 10. Exit
 ```
 except Exception as e:
     print("Error:", e)
