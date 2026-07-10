@@ -194,6 +194,9 @@ GPIO.cleanup()
 <img src="Ball_Tracker_bb.svg">
 
 # Code
+### Logic Flowchart
+<img src="mermaid-diagram.svg">
+
 ```python
 import RPi.GPIO as GPIO
 import time
