@@ -197,6 +197,7 @@ GPIO.cleanup()
 ### Logic Flowchart
 <img src="mermaid-diagram.svg">
 
+### Fully Integrated Program
 ```python
 import RPi.GPIO as GPIO
 import time
