@@ -24,10 +24,6 @@ For your final milestone, explain the outcome of your project. Key details to in
 - A summary of key topics you learned about
 - What you hope to learn in the future after everything you've learned at BSE
 
-### Robot Chassis & Body CAD
-<img src="file.svg">
-
-
 # Second Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/cmrQJw0E5GU?si=SIbBNiwHCmCM1aL-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
