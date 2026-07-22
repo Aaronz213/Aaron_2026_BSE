@@ -20,6 +20,12 @@ For my final milestone, I implemented two modifications: status lights and a cov
 
 During the construction of the cover, I gained experience in creating my own designs using CAD software and encountered the limitations of 3D printing. A significant challenge was that the cover was too large to print in a single operation, necessitating its division. After dividing it in half, we attempted printing, but the results were severely compromised due to the printer’s inability to handle the substantial piece. However, after dividing it into quarters, the printing process proceeded without significant issues.
 
+<img src="front_right.jpg"> 
+<img src="front_left.jpg">
+<img src="back_right.jpg">
+<img src="back_left.jpg">
+<img src="whole_bot.jpg">
+
 In the future, I intend to expand my knowledge of artificial intelligence, machine learning, and autonomous navigation techniques such as SLAM. These technologies would enable robots to recognize a wide range of objects, map unfamiliar environments, and make intelligent decisions without relying on manually programmed behaviors. Additionally, I am eager to enhance my CAD and embedded systems skills, enabling me to design more capable and reliable robots.
 
 # Second Milestone
