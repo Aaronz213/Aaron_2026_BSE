@@ -220,17 +220,34 @@ except Exception as e:
     print("Failed to connect to pigpio:", e)
     exit()
 
+# ====================== MOTOR SETUP ======================
 left = Motor(forward=23, backward=24, pin_factory=factory)
 right = Motor(forward=27, backward=17, pin_factory=factory)
 
+# ====================== DISTANCE SENSORS ======================
 lsense = DistanceSensor(echo=15, trigger=14, pin_factory=factory)
 centsense = DistanceSensor(echo=13, trigger=6, pin_factory=factory)
 rsense = DistanceSensor(echo=9, trigger=10, pin_factory=factory)
 
+# ====================== RGB LED SETUP ======================
+# Left RGB
+LED_L_R = 16
+LED_L_G = 20
+LED_L_B = 21
+
+# Right RGB
+LED_R_R = 4
+LED_R_G = 2
+LED_R_B = 3
+
+# Setup all LED pins
+for pin in [LED_L_R, LED_L_G, LED_L_B, LED_R_R, LED_R_G, LED_R_B]:
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.LOW)  # Start all off
+
 motorspd = 0.85
 min_speed = motorspd * 0.7
-
-sensor_proximity = 10.0        
+sensor_proximity = 10.0
 rerouting_proximity = 17.5
 
 # Camera
@@ -245,11 +262,40 @@ flag = 0
 ball_lost_time = time.time()
 lost_threshold = 8.0
 
-def print_once(action):
-    global last_action
-    if action != last_action:
-        print(f"\n→ {action}")
-        last_action = action
+# ====================== RGB LED FUNCTIONS ======================
+def set_rgb(color):
+    # Turn all off first
+    for pin in [LED_L_R, LED_L_G, LED_L_B, LED_R_R, LED_R_G, LED_R_B]:
+        GPIO.output(pin, GPIO.LOW)
+    
+    if color == "off":
+        return
+    elif color == "red":
+        GPIO.output(LED_L_R, GPIO.HIGH)
+        GPIO.output(LED_R_R, GPIO.HIGH)
+    elif color == "green":
+        GPIO.output(LED_L_G, GPIO.HIGH)
+        GPIO.output(LED_R_G, GPIO.HIGH)
+    elif color == "blue":
+        GPIO.output(LED_L_B, GPIO.HIGH)
+        GPIO.output(LED_R_B, GPIO.HIGH)
+    elif color == "orange":      # Red + Green
+        GPIO.output(LED_L_R, GPIO.HIGH)
+        GPIO.output(LED_L_G, GPIO.HIGH)
+        GPIO.output(LED_R_R, GPIO.HIGH)
+        GPIO.output(LED_R_G, GPIO.HIGH)
+
+def set_searching():
+    set_rgb("orange")
+
+def set_tracking():
+    set_rgb("green")
+
+def set_reached():
+    set_rgb("green")
+
+def set_obstacle():
+    set_rgb("red")
 
 # ====================== MOTOR FUNCTIONS ======================
 def stop():
@@ -308,46 +354,54 @@ def find_blob(blob):
     largest = max(contours, key=cv2.contourArea)
     return cv2.boundingRect(largest), cv2.contourArea(largest)
 
+def print_once(action):
+    global last_action
+    if action != last_action:
+        print(f"\n→ {action}")
+        last_action = action
 
 # ====================== MAIN LOOP ======================
 try:
-    print("Robot started. Press 'q' to quit.\n")
-    
+    print("Robot started with RGB feedback. Press 'q' to quit.\n")
+    set_searching()  # Start with searching color
+
     while True:
         frame = picam2.capture_array()
         frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         height, width = frame_bgr.shape[:2]
-        
+       
         ldist = lsense.distance * 100
         cdist = centsense.distance * 100
         rdist = rsense.distance * 100
-        
+       
         mask_red = segment_colour(frame_bgr)
         loct, area = find_blob(mask_red)
         x, y, w, h = loct
-        
-        found = (w * h) > 350                        
+       
+        found = (w * h) > 350
         center_x = x + w/2 if found else 0
-        
-        if found:
-            cv2.rectangle(frame_bgr, (x, y), (x+w, y+h), (0, 255, 0), 2)
-            cv2.circle(frame_bgr, (int(center_x), int(y + h/2)), 6, (0, 110, 255), -1)
-        
-        # ==================== DECISION LOGIC ====================
-        print_once(f"Ball: area={area:>6}  cx={center_x:>4.0f}  cdist={cdist:>5.1f}cm  l={ldist:>5.1f} r={rdist:>5.1f}")
 
         if found:
-            # Improved "very close" detection - mainly relies on vision size + center sensor
+            set_tracking()
+            cv2.rectangle(frame_bgr, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.circle(frame_bgr, (int(center_x), int(y + h/2)), 6, (0, 110, 255), -1)
+       
+        # ==================== DECISION LOGIC ====================
+        print_once(f"Ball: area={area:>6} cx={center_x:>4.0f} cdist={cdist:>5.1f}cm l={ldist:>5.1f} r={rdist:>5.1f}")
+
+        if found:
             ball_is_very_close = (area > 65000) or ((cdist < 17) or (ldist < 17) or (rdist < 17))
-            
+           
             if ball_is_very_close:
                 stop()
+                set_reached()
                 print_once("BALL REACHED")
-                
+               
             elif ldist > sensor_proximity and cdist > sensor_proximity and rdist > sensor_proximity:
-                # Dynamic speed - slow down as ball gets bigger
+                set_tracking()  # Blue = tracking
+               
                 speed = max(min_speed, motorspd * (1 - (area / 42000)))
-                
+               
                 if center_x < 110:
                     leftturn()
                     print_once("Turning LEFT toward ball")
@@ -359,17 +413,20 @@ try:
                 else:
                     driveforward(speed)
                     print_once(f"Moving FORWARD (speed: {speed:.2f})")
-                    
+                   
             else:
                 # Obstacle handling while ball is visible
                 stop()
+                set_obstacle()  # Red = obstacle
                 if ldist < sensor_proximity or cdist < sensor_proximity or rdist < sensor_proximity:
                     drivebackward()
                     print_once("REVERSING - obstacle detected")
-                    time.sleep(0.15)
+                    time.sleep(0.85)
+                    back_left()
                     stop()
                 if cdist < sensor_proximity + 5 or area > 18000:
                     print_once("PARKED")
+                    set_reached()
                 elif ldist < rerouting_proximity:
                     back_left()
                     time.sleep(0.25)
@@ -382,35 +439,42 @@ try:
                     drivebackward(0.5)
                     time.sleep(0.3)
                     stop()
+
         else:
-            # Ball lost logic
+            # Ball lost / searching
+            set_searching()  # Orange = searching
+            
             if ldist > sensor_proximity or cdist > sensor_proximity or rdist > sensor_proximity:
                 print_once("Searching for ball...")
                 sharp_left() if flag == 0 else sharp_right()
                 time.sleep(0.13)
             else:
+                set_obstacle()
                 drivebackward()
                 print_once("REVERSING - obstacle while searching")
                 time.sleep(0.45)
                 stop()
 
+        # Global obstacle check (highest priority)
         if ldist < sensor_proximity or cdist < sensor_proximity or rdist < sensor_proximity:
-                    drivebackward()
-                    print_once("REVERSING - obstacle detected")
-                    time.sleep(0.15)
-                    stop()
+            set_obstacle()
+            drivebackward()
+            print_once("REVERSING - obstacle detected")
+            time.sleep(0.15)
+            stop()
 
         cv2.imshow("Ball Tracker", frame_bgr)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("\nQuitting...")
             break
-        
+       
         time.sleep(0.01)
 
 except Exception as e:
     print("Error:", e)
 finally:
     stop()
+    set_rgb("off")
     picam2.stop()
     cv2.destroyAllWindows()
     GPIO.cleanup()
@@ -447,9 +511,15 @@ except Exception as e:
     exit()
 left = Motor(forward=23, backward=24, pin_factory=factory)
 right = Motor(forward=27, backward=17, pin_factory=factory)
+
+# Setup all LED pins
+for pin in [LED_L_R, LED_L_G, LED_L_B, LED_R_R, LED_R_G, LED_R_B]:
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.LOW)  # Start all off
 ```
 * Sets up motor control using specific GPIO pins
 * Uses ```PiGPIOFactory``` for smoother PWM control of motors
+* Sets up the 2 Status RGB LEDs
 
 #### Sensors
 ```
@@ -532,17 +602,19 @@ found = (w * h) > 350                               # Minimum size filter
 ```
 #### Decision Logic
 1. If Ball is Found:
+   LED blue
    ball_is_very_close: Checks if area is very large or any sensor sees something very close
-   If very close → Stop
-   If path is clear → Turn or drive forward with speed adjusted by ball size
-   If obstacle detected → Reverse and reroute
+   If very close → Stop and LED green
+   If path is clear → LED blue and Turn or drive forward with speed adjusted by ball size
+   If obstacle detected → LED red Reverse and reroute
 
-2. If Ball is NOT Found:
+3. If Ball is NOT Found:
+   LED yellow
    Search by turning left or right based on flag (last known position)
    If obstacle while searching → Reverse
 
 Obstacle Safety Check (outside main if):
-Extra safety layer that forces reverse if anything is too close
+Extra safety layer that forces reverse and LED red if anything is too close
 
 ### 9. Display
 ```
