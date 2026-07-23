@@ -601,19 +601,19 @@ x, y, w, h = loct
 found = (w * h) > 350                               # Minimum size filter
 ```
 #### Decision Logic
-1. If Ball is Found:
-   LED blue
-   ball_is_very_close: Checks if area is very large or any sensor sees something very close
-   If very close → Stop and LED green
-   If path is clear → LED blue and Turn or drive forward with speed adjusted by ball size
+1. If Ball is Found:\
+   LED blue\
+   ball_is_very_close: Checks if area is very large or any sensor sees something very close\
+   If very close → Stop and LED green\
+   If path is clear → LED blue and Turn or drive forward with speed adjusted by ball size\
    If obstacle detected → LED red Reverse and reroute
 
-3. If Ball is NOT Found:
-   LED yellow
-   Search by turning left or right based on flag (last known position)
+3. If Ball is NOT Found:\
+   LED yellow\
+   Search by turning left or right based on flag (last known position)\
    If obstacle while searching → Reverse
 
-Obstacle Safety Check (outside main if):
+Obstacle Safety Check (outside main if):\
 Extra safety layer that forces reverse and LED red if anything is too close
 
 ### 9. Display
