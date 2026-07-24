@@ -17,7 +17,7 @@ The biggest challenge was getting the robot to reliably approach the ball instea
 <iframe width="560" height="315" src="https://www.youtube.com/embed/F7M7imOVGug" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 For my final milestone, I implemented two modifications: status lights and a cover body for the robot. The status lights consist of two RGB LEDs mounted on the bottom of the left and right inner sides of the body. They indicate red when an obstacle is too close, yellow when the robot is searching for the ball, blue when it is tracking and following the ball, and green when it has reached the ball and parked. The cover body of the robot is a robot vacuum-inspired cover with a cutout in the front for the ultrasonic sensors and camera.
-
+<img src="whole_bot.jpg">
 During the construction of the cover, I gained experience in creating my own designs using CAD software and encountered the limitations of 3D printing. A significant challenge was that the cover was too large to print in a single operation, necessitating its division. After dividing it in half, we attempted printing, but the results were severely compromised due to the printer’s inability to handle the substantial piece. However, after dividing it into quarters, the printing process proceeded without significant issues.
 
 <table>
@@ -32,8 +32,6 @@ During the construction of the cover, I gained experience in creating my own des
     <td><img src="back_left.jpg" width="400"></td>
   </tr>
 </table>
-
-<img src="whole_bot.jpg">
 
 In the future, I intend to expand my knowledge of artificial intelligence, machine learning, and autonomous navigation techniques such as SLAM. These technologies would enable robots to recognize a wide range of objects, map unfamiliar environments, and make intelligent decisions without relying on manually programmed behaviors. Additionally, I am eager to enhance my CAD and embedded systems skills, enabling me to design more capable and reliable robots.
 
