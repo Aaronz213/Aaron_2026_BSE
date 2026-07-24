@@ -24,10 +24,15 @@ During the construction of the cover, I gained experience in creating my own des
   <tr>
     <td><img src="front_right.jpg" width="400"> </td>
     <td><img src="front_left.jpg" width="400"></td>
+  </tr>
+</table>
+<table>
+  <tr>
     <td><img src="back_right.jpg" width="400"></td>
     <td><img src="back_left.jpg" width="400"></td>
   </tr>
 </table>
+
 <img src="whole_bot.jpg">
 
 In the future, I intend to expand my knowledge of artificial intelligence, machine learning, and autonomous navigation techniques such as SLAM. These technologies would enable robots to recognize a wide range of objects, map unfamiliar environments, and make intelligent decisions without relying on manually programmed behaviors. Additionally, I am eager to enhance my CAD and embedded systems skills, enabling me to design more capable and reliable robots.
