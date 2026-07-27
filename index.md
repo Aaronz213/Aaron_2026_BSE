@@ -1,5 +1,5 @@
-# Ball Tracking Robot
-The Ball Tracking Robot is a fully autonomous robot that detects and chases a red ball using computer vision and ultrasonic sensors. Built with a Raspberry Pi, Pi Camera, Ultrasonic sensors, and differential drive motors, the robot locates the ball from a distance, turns toward it, drives forward while dynamically adjusting speed, and avoids obstacles using three ultrasonic sensors.  
+# Scout
+Scout is a fully autonomous robot that detects and chases a red ball using computer vision and ultrasonic sensors. Built with a Raspberry Pi, Pi Camera, Ultrasonic sensors, and differential drive motors, the robot locates the ball from a distance, turns toward it, drives forward while dynamically adjusting speed, and avoids obstacles using three ultrasonic sensors.  
 
 The biggest challenge was getting the robot to reliably approach the ball instead of just detecting it from afar, this required deep debugging of vision thresholds, sensor interference, and control logic. Working on this project gave me much experience in real-time computer vision, sensor fusion, and iterative robotics development.
 
