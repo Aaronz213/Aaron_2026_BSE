@@ -41,6 +41,14 @@ In the future, I intend to expand my knowledge of artificial intelligence, machi
 
 I achieved full integration of the Pi Camera with computer vision. The robot can now reliably detect a red ball using HSV color filtering and contour detection. I implemented real-time decision logic that allows the robot to turn toward the ball when it’s off-center and drive forward when it’s aligned.  
 
+<table>
+  <tr>
+    <td><img src="IMG_6908.JPG" width="400"> </td>
+    <td><img src="IMG_6909.JPG" width="400"> </td>
+    <td><img src="IMG_6910.JPG" width="400"> </td>
+  </tr>
+</table>
+
 I also refined the motor control (differential drive) and integrated ultrasonic sensor data for obstacle avoidance. One of the biggest surprises was how much the camera view could be blocked before detection failed; I learned it can’t be obscured by more than ~30%.  
 
 The main challenge was making the robot actually approach the ball instead of just spotting it and spinning. This was solved through extensive tuning of area thresholds, turning deadzones, and speed curves.
