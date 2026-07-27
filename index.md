@@ -93,6 +93,14 @@ I focused on building the foundation of the robot, assembling the drivetrain usi
 
 I set up the Raspberry Pi with motor drivers using gpiozero and tested basic movement commands (forward, backward, and turning). This milestone established the mechanical base and low-level motor + sensor control that the computer vision system would later build upon. 
 
+<table>
+  <tr>
+    <td><img src="IMG_6764.JPG" width="400"> </td>
+    <td><img src="IMG_6767.JPG" width="400"> </td>
+    <td><img src="IMG_6768.JPG" width="400"> </td>
+  </tr>
+</table>
+
 The main challenge was getting smooth and reliable motor response with the Pi, which I solved by switching to the pigpio factory for better PWM control. This setup provided the mobility needed for the full ball-tracking behavior in later milestones.
 
 I wrote a simple program named ```Robot_Test``` to test the operational status of the motors, Raspberry Pi, and Sensors working together. ```Robot_Test`` works by having the robot drive in a straight line until an ultrasonic sensor detects something and immediately stops.
