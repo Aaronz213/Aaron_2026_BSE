@@ -14,7 +14,7 @@ The biggest challenge was getting the robot to reliably approach the ball instea
   
 # Final Milestone
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/F7M7imOVGug" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/eWw8aakkxxw?si=VV-AdAWcX3XvGpiX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 For my final milestone, I implemented two modifications: status lights and a cover body for the robot. The status lights consist of two RGB LEDs mounted on the bottom of the left and right inner sides of the body. They indicate red when an obstacle is too close, yellow when the robot is searching for the ball, blue when it is tracking and following the ball, and green when it has reached the ball and parked. The cover body of the robot is a robot vacuum-inspired cover with a cutout in the front for the ultrasonic sensors and camera.
 
